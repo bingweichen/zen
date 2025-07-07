@@ -80,3 +80,12 @@ model RolePermission {
   role         Role        @relation(fields: [roleId], references: [id])
   permission   Permission  @relation(fields: [permissionId], references: [id])
 }
+
+model EmailVerificationCode {
+  id         Int      @id @default(autoincrement())
+  email      String
+  code       String
+  expiresAt  DateTime
+  used       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}

@@ -1,7 +1,9 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@/generated/prisma/index";
 import { randomBytes } from "crypto";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -10,6 +12,24 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        username: { label: "用户名", type: "text" },
+        password: { label: "密码", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials) return null;
+        const user = await prisma.user.findUnique({
+          where: { username: credentials.username },
+        });
+        if (user && await bcrypt.compare(credentials.password, user.password)) {
+          // 返回用户对象（不要包含密码）
+          return { id: String(user.id), name: user.username, email: user.username, role: user.role };
+        }
+        return null;
+      },
     }),
   ],
   callbacks: {
@@ -40,7 +60,6 @@ export const authOptions = {
     },
     async jwt({ token, user, account }: { token: any; user: any; account: any }) {
       // 首次登录时，user 对象包含数据库中的用户信息
-      console.log('jwt', token, user, account);
       if (account && user) {
         // 从数据库获取完整的用户信息
         const dbUser = await prisma.user.findUnique({

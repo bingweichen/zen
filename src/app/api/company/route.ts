@@ -8,15 +8,11 @@ const prisma = new PrismaClient();
 export async function GET(req: NextRequest) {
   // 获取当前登录用户
   const session = await getServerSession(authOptions);
-  console.log('session', session);
-  console.log('session.user', session?.user);
 
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
   const userId = session.user.id;
-
-  console.log('userId', userId);
 
   // 查询用户所属公司（作为owner或员工）
   const ownedCompanies = await prisma.company.findMany({
