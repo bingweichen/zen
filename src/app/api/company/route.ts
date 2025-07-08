@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
 
   // 创建公司
   try {
+    // 1. 创建公司
     const company = await prisma.company.create({
       data: {
         name,
@@ -76,6 +77,25 @@ export async function POST(req: NextRequest) {
         businessLicense: businessLicense ?? null,
       },
     });
+
+    // 2. 创建 admin 角色
+    const adminRole = await prisma.role.create({
+      data: {
+        companyId: company.id,
+        name: 'admin',
+        description: '公司管理员',
+      },
+    });
+
+    // 3. 创建员工记录（创建者为 admin）
+    await prisma.employee.create({
+      data: {
+        userId: userId,
+        companyId: company.id,
+        roleId: adminRole.id,
+      },
+    });
+
     return NextResponse.json(company);
   } catch (e) {
     const errorMsg = e instanceof Error ? e.message : String(e);

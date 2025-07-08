@@ -1,0 +1,119 @@
+"use client";
+import React, { useEffect, useState } from "react";
+import { Table, Button, Space, Tag, message, Modal, Input } from "antd";
+import type { ColumnsType } from "antd/es/table";
+import type { Employee } from "@/types/employee";
+
+const EmployeesPage: React.FC = () => {
+  const [data, setData] = useState<Employee[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [inviteModalVisible, setInviteModalVisible] = useState(false);
+  const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteLoading, setInviteLoading] = useState(false);
+
+  useEffect(() => {
+    fetchEmployees();
+  }, []);
+
+  const fetchEmployees = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/company/employees");
+      if (!res.ok) throw new Error("获取员工列表失败");
+      const result = await res.json();
+      setData(result.data || []);
+    } catch (e: any) {
+      message.error(e.message || "获取员工失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleInvite = async () => {
+    if (!inviteUsername) {
+      message.warning("请输入用户名");
+      return;
+    }
+    setInviteLoading(true);
+    try {
+      const res = await fetch("/api/company/employees", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: inviteUsername }),
+      });
+      if (!res.ok) throw new Error("邀请失败");
+      message.success("邀请成功");
+      setInviteModalVisible(false);
+      setInviteUsername("");
+      fetchEmployees();
+    } catch (e: any) {
+      message.error(e.message || "邀请失败");
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const columns: ColumnsType<Employee> = [
+    {
+      title: "姓名",
+      dataIndex: ["user", "username"],
+      key: "user.username",
+    },
+    {
+      title: "邮箱",
+      dataIndex: ["user", "email"],
+      key: "email",
+    },
+    {
+      title: "角色",
+      dataIndex: ["role", "name"],
+      key: "role",
+    //   render: (role) => <Tag color="blue">{role}</Tag>,
+    },
+    
+    {
+      title: "操作",
+      key: "action",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button type="link">修改角色</Button>
+          <Button type="link" danger>移除</Button>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-bold">员工管理</h2>
+        <Button type="primary" onClick={() => setInviteModalVisible(true)}>邀请员工</Button>
+      </div>
+      <Table
+        columns={columns}
+        dataSource={data}
+        rowKey="id"
+        loading={loading}
+        bordered
+      />
+      <Modal
+        title="邀请员工"
+        open={inviteModalVisible}
+        onCancel={() => { setInviteModalVisible(false); setInviteUsername(""); }}
+        onOk={handleInvite}
+        confirmLoading={inviteLoading}
+        okText="发送邀请"
+        cancelText="取消"
+      >
+        <Input
+          placeholder="请输入员工用户名"
+          value={inviteUsername}
+          onChange={e => setInviteUsername(e.target.value)}
+          onPressEnter={handleInvite}
+        />
+      </Modal>
+    </div>
+  );
+};
+
+export default EmployeesPage; 
