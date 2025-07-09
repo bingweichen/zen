@@ -4,6 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaClient } from "@/generated/prisma/index";
 import { randomBytes } from "crypto";
 import bcrypt from "bcryptjs";
+import { createUser } from '@/services/user/createUser';
 
 const prisma = new PrismaClient();
 
@@ -26,7 +27,7 @@ export const authOptions = {
         });
         if (user && await bcrypt.compare(credentials.password, user.password)) {
           // 返回用户对象（不要包含密码）
-          return { id: String(user.id), name: user.username, email: user.username, role: user.role };
+          return { id: String(user.id), name: user.username, email: user.username};
         }
         return null;
       },
@@ -46,13 +47,9 @@ export const authOptions = {
         });
         if (!exist) {
           // 首次登录，创建用户
-          await prisma.user.create({
-            data: {
-              username: user.email,
-              password: randomBytes(16).toString("hex"), // 随机密码
-              role: "staff",
-              source: "google",
-            },
+          await createUser({
+            email: user.email,
+            source: 'google',
           });
         }
       }
@@ -67,7 +64,6 @@ export const authOptions = {
         });
         if (dbUser) {
           token.id = dbUser.id;
-          token.role = dbUser.role;
         }
       }
       return token;
@@ -76,7 +72,6 @@ export const authOptions = {
       // 从 JWT token 中获取用户 ID
       if (token && token.id) {
         session.user.id = token.id;
-        session.user.role = token.role;
       }
       return session;
     },

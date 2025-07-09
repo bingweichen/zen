@@ -17,8 +17,8 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   username  String   @unique
+  email     String?  @unique // 新增邮箱字段，允许为 null
   password  String
-  role      String   // 如 'admin' 或 'staff'
   source    String   @default("google") // 用户来源，如 'google'、'email' 等
   currentCompanyId Int? // 当前选择的公司ID
   createdAt DateTime @default(now())

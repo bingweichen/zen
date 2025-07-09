@@ -55,12 +55,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ code: 403, message: '无权限' }, { status: 403 });
   }
   const body = await req.json();
-  const { username } = body;
-  if (!username) {
-    return NextResponse.json({ code: 400, message: '参数错误' }, { status: 400 });
+  const { email } = body;
+  if (!email) {
+    return NextResponse.json({ code: 400, message: '参数错误，缺少邮箱' }, { status: 400 });
   }
-  // 查找用户
-  const user = await prisma.user.findUnique({ where: { username } });
+  // 查找用户（通过邮箱）
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return NextResponse.json({ code: 404, message: '用户不存在' }, { status: 404 });
   }
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ code: 409, message: '该用户已是员工' }, { status: 409 });
   }
   // 获取默认角色
-  const defaultRole = await prisma.role.findFirst({ where: { companyId, name: '员工' } });
+  const defaultRole = await prisma.role.findFirst({ where: { companyId } });
   if (!defaultRole) {
     return NextResponse.json({ code: 400, message: '未找到默认角色' }, { status: 400 });
   }

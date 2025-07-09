@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/generated/prisma';
 import bcrypt from 'bcryptjs';
+import { createUser } from '@/services/user/createUser';
 
 const prisma = new PrismaClient();
 
@@ -33,14 +34,10 @@ export async function POST(req: NextRequest) {
   const passwordHash = await bcrypt.hash(password, 10);
 
   // 创建用户
-  await prisma.user.create({
-    data: {
-      username: email,
-      password: passwordHash,
-      role: 'staff', // 默认角色
-      source: 'email',
-      createdAt: new Date(),
-    },
+  await createUser({
+    email,
+    password,
+    source: 'email',
   });
 
   // 标记验证码为已使用

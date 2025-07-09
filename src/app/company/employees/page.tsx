@@ -8,7 +8,7 @@ const EmployeesPage: React.FC = () => {
   const [data, setData] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(false);
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
-  const [inviteUsername, setInviteUsername] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
 
   useEffect(() => {
@@ -30,8 +30,8 @@ const EmployeesPage: React.FC = () => {
   };
 
   const handleInvite = async () => {
-    if (!inviteUsername) {
-      message.warning("请输入用户名");
+    if (!inviteEmail) {
+      message.warning("请输入邮箱");
       return;
     }
     setInviteLoading(true);
@@ -39,12 +39,12 @@ const EmployeesPage: React.FC = () => {
       const res = await fetch("/api/company/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: inviteUsername }),
+        body: JSON.stringify({ email: inviteEmail }),
       });
       if (!res.ok) throw new Error("邀请失败");
       message.success("邀请成功");
       setInviteModalVisible(false);
-      setInviteUsername("");
+      setInviteEmail("");
       fetchEmployees();
     } catch (e: any) {
       message.error(e.message || "邀请失败");
@@ -99,16 +99,16 @@ const EmployeesPage: React.FC = () => {
       <Modal
         title="邀请员工"
         open={inviteModalVisible}
-        onCancel={() => { setInviteModalVisible(false); setInviteUsername(""); }}
+        onCancel={() => { setInviteModalVisible(false); setInviteEmail(""); }}
         onOk={handleInvite}
         confirmLoading={inviteLoading}
         okText="发送邀请"
         cancelText="取消"
       >
         <Input
-          placeholder="请输入员工用户名"
-          value={inviteUsername}
-          onChange={e => setInviteUsername(e.target.value)}
+          placeholder="请输入员工邮箱"
+          value={inviteEmail}
+          onChange={e => setInviteEmail(e.target.value)}
           onPressEnter={handleInvite}
         />
       </Modal>
