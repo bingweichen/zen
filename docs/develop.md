@@ -40,9 +40,9 @@
 - [] 页面设计
   - [ ] 公司选择页 /companys 前往公司主页
   - [ ] 页面
-    - [ ] / 主页
-    - [ ] login 登录页 (前往注册页)
-    - [ ] register 注册页
+    - [x] / 主页
+    - [x] login 登录页 (前往注册页)
+    - [x] register 注册页
     - [ ] companyies 公司选择页
     - [ ] company/home 首页
     - [ ] company/employees
