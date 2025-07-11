@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import SessionWrapper from "../components/SessionWrapper";
+import SessionWrapper from "../shared/components/SessionWrapper";
+import { HeaderSelector } from "../shared/components";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SessionWrapper>
-          {children}
+          <HeaderSelector />
+          <main style={{ minHeight: 'calc(100vh - 64px)' }}>
+            {children}
+          </main>
         </SessionWrapper>
       </body>
     </html>
