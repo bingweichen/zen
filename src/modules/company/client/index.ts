@@ -1,5 +1,5 @@
 // 导出类型
-export * from './types';
+export * from '../types';
 
 // 导出配置
 export * from './config';

@@ -21,7 +21,7 @@ import {
   CompanyForm, 
   CompanyList, 
   COMPANY_PAGE_STYLES 
-} from '@/modules/companies';
+} from '@/modules/company/client';
 
 const { Title } = Typography;
 

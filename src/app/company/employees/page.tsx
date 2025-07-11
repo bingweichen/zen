@@ -1,15 +1,17 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Button, Space, Tag, message, Modal, Input } from "antd";
+import { Table, Button, Space, Tag, message, Modal, Input, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import type { Employee } from "@/types/employee";
+import type { EmployeeWithUserAndRole } from "@/modules/employee/types";
 
 const EmployeesPage: React.FC = () => {
-  const [data, setData] = useState<Employee[]>([]);
+  const [data, setData] = useState<EmployeeWithUserAndRole[]>([]);
   const [loading, setLoading] = useState(false);
   const [inviteModalVisible, setInviteModalVisible] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteLoading, setInviteLoading] = useState(false);
+  const [removeLoading, setRemoveLoading] = useState(false);
+  // data[0].username
 
   useEffect(() => {
     fetchEmployees();
@@ -21,6 +23,8 @@ const EmployeesPage: React.FC = () => {
       const res = await fetch("/api/company/employees");
       if (!res.ok) throw new Error("获取员工列表失败");
       const result = await res.json();
+      result[0].user.username
+      
       setData(result.data || []);
     } catch (e: any) {
       message.error(e.message || "获取员工失败");
@@ -53,7 +57,23 @@ const EmployeesPage: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<Employee> = [
+  const handleRemoveClick = async (user: EmployeeWithUserAndRole) => {
+    setRemoveLoading(true);
+    try {
+      const res = await fetch(`/api/company/employees?employeeId=${user.id}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("移除失败");
+      message.success("移除成功");
+      fetchEmployees();
+    } catch (e: any) {
+      message.error(e.message || "移除失败");
+    } finally {
+      setRemoveLoading(false);
+    }
+  };
+
+  const columns: ColumnsType<EmployeeWithUserAndRole> = [
     {
       title: "姓名",
       dataIndex: ["user", "username"],
@@ -77,7 +97,15 @@ const EmployeesPage: React.FC = () => {
       render: (_, record) => (
         <Space size="middle">
           <Button type="link">修改角色</Button>
-          <Button type="link" danger>移除</Button>
+          <Popconfirm
+            title={`确定要移除员工${record.user.username || ''}吗？`}
+            onConfirm={() => handleRemoveClick(record)}
+            okText="确认移除"
+            cancelText="取消"
+            okButtonProps={{ loading: removeLoading }}
+          >
+            <Button type="link" danger>移除</Button>
+          </Popconfirm>
         </Space>
       ),
     },

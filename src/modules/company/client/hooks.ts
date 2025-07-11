@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ApiResponse } from './types';
+import { ApiResponse } from '../types';
 
 // 自定义 Hook: API 请求
 export const useApiRequest = () => {
