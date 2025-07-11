@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { 
   Card, 
   Button, 
@@ -15,13 +15,21 @@ import {
   PlusOutlined, 
   BuildOutlined
 } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import { 
-  Company, 
-  useApiRequest, 
+  CompanyType as Company, 
   CompanyForm, 
   CompanyList, 
   COMPANY_PAGE_STYLES 
 } from '@/modules/company/client';
+import {
+  fetchCompanies,
+  fetchCurrentCompany,
+  createCompany,
+  updateCompany,
+  deleteCompany,
+  selectCompany
+} from '@/modules/company/client/service';
 
 const { Title } = Typography;
 
@@ -31,107 +39,120 @@ const CompaniesPage = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
+  const [createError, setCreateError] = useState('');
+  const [editError, setEditError] = useState('');
   
   const [createForm] = Form.useForm();
   const [editForm] = Form.useForm();
-  
-  const { request, loading, error, setError } = useApiRequest();
 
   // 获取公司列表
-  const fetchCompanies = useCallback(async () => {
-    try {
-      const data = await request<Company[]>('/api/company');
-      setCompanies(data);
-    } catch (e) {
-      console.error('获取公司列表失败:', e);
+  const { loading: companiesLoading, run: fetchCompaniesData } = useRequest(
+    fetchCompanies,
+    {
+      onSuccess: (data) => {
+        setCompanies(data);
+      },
+      onError: (error) => {
+        console.error('获取公司列表失败:', error);
+        message.error(error.message);
+      }
     }
-  }, [request]);
+  );
 
   // 获取当前选择的公司
-  const fetchCurrentCompany = useCallback(async () => {
-    try {
-      const data = await request<{ currentCompany: Company }>('/api/company/current');
-      setCurrentCompany(data.currentCompany);
-    } catch (e) {
-      console.error('获取当前公司失败:', e);
+  const { loading: currentCompanyLoading, run: fetchCurrentCompanyData } = useRequest(
+    fetchCurrentCompany,
+    {
+      onSuccess: (data) => {
+        setCurrentCompany(data.currentCompany);
+      },
+      onError: (error) => {
+        console.error('获取当前公司失败:', error);
+        message.error(error.message);
+      }
     }
-  }, [request]);
-
-  useEffect(() => {
-    fetchCompanies();
-    fetchCurrentCompany();
-  }, [fetchCompanies, fetchCurrentCompany]);
+  );
 
   // 创建公司
-  const handleCreateCompany = useCallback(async (values: Partial<Company>) => {
-    try {
-      await request<Company>('/api/company', {
-        method: 'POST',
-        body: JSON.stringify(values),
-      });
-      
-      message.success('公司创建成功！');
-      setShowCreateModal(false);
-      createForm.resetFields();
-      fetchCompanies();
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e));
+  const { loading: createLoading, run: createCompanyData } = useRequest(
+    createCompany,
+    {
+      manual: true,
+      onSuccess: () => {
+        message.success('公司创建成功！');
+        setShowCreateModal(false);
+        createForm.resetFields();
+        setCreateError('');
+        fetchCompaniesData();
+      },
+      onError: (error) => {
+        setCreateError(error.message);
+      }
     }
-  }, [request, createForm, fetchCompanies]);
+  );
 
   // 修改公司
-  const handleEditCompany = useCallback(async (values: Partial<Company>) => {
-    if (!editingCompany) return;
-    
-    try {
-      await request<Company>('/api/company', {
-        method: 'PUT',
-        body: JSON.stringify({ id: editingCompany.id, ...values }),
-      });
-      
-      message.success('公司修改成功！');
-      setShowEditModal(false);
-      setEditingCompany(null);
-      editForm.resetFields();
-      fetchCompanies();
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e));
+  const { loading: editLoading, run: editCompanyData } = useRequest(
+    async (values: Partial<Company>) => {
+      if (!editingCompany) return;
+      return updateCompany(editingCompany.id, values);
+    },
+    {
+      manual: true,
+      onSuccess: () => {
+        message.success('公司修改成功！');
+        setShowEditModal(false);
+        setEditingCompany(null);
+        editForm.resetFields();
+        setEditError('');
+        fetchCompaniesData();
+      },
+      onError: (error) => {
+        setEditError(error.message);
+      }
     }
-  }, [request, editingCompany, editForm, fetchCompanies]);
+  );
 
   // 删除公司
-  const handleDeleteCompany = useCallback(async (companyId: number) => {
-    try {
-      await request(`/api/company?id=${companyId}`, {
-        method: 'DELETE',
-      });
-      
-      message.success('公司删除成功！');
-      fetchCompanies();
-      
-      // 如果删除的是当前公司，清空当前公司
-      if (currentCompany?.id === companyId) {
-        setCurrentCompany(null);
+  const { loading: deleteLoading, run: deleteCompanyData } = useRequest(
+    deleteCompany,
+    {
+      manual: true,
+      onSuccess: (_, [companyId]) => {
+        message.success('公司删除成功！');
+        fetchCompaniesData();
+        
+        // 如果删除的是当前公司，清空当前公司
+        if (currentCompany?.id === companyId) {
+          setCurrentCompany(null);
+        }
+      },
+      onError: (error) => {
+        message.error(error.message);
       }
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e));
     }
-  }, [request, currentCompany, fetchCompanies]);
+  );
 
   // 选择公司
-  const handleSelectCompany = useCallback(async (companyId: number) => {
-    try {
-      const data = await request<{ currentCompany: Company }>('/api/company/current', {
-        method: 'POST',
-        body: JSON.stringify({ companyId }),
-      });
-      
-      message.success('公司选择成功！');
-      setCurrentCompany(data.currentCompany);
-    } catch (e) {
-      message.error(e instanceof Error ? e.message : String(e));
+  const { loading: selectLoading, run: selectCompanyData } = useRequest(
+    selectCompany,
+    {
+      manual: true,
+      onSuccess: (data) => {
+        message.success('公司选择成功！');
+        setCurrentCompany(data.currentCompany);
+      },
+      onError: (error) => {
+        message.error(error.message);
+      }
     }
-  }, [request]);
+  );
+
+  // 初始化数据
+  React.useEffect(() => {
+    fetchCompaniesData();
+    fetchCurrentCompanyData();
+  }, []);
 
   // 打开编辑modal
   const openEditModal = useCallback((company: Company) => {
@@ -147,21 +168,22 @@ const CompaniesPage = () => {
       businessLicense: company.businessLicense,
     });
     setShowEditModal(true);
-    setError('');
-  }, [editForm, setError]);
+  }, [editForm]);
 
   const handleCreateModalCancel = useCallback(() => {
     setShowCreateModal(false);
     createForm.resetFields();
-    setError('');
-  }, [createForm, setError]);
+    setCreateError('');
+  }, [createForm]);
 
   const handleEditModalCancel = useCallback(() => {
     setShowEditModal(false);
     setEditingCompany(null);
     editForm.resetFields();
-    setError('');
-  }, [editForm, setError]);
+    setEditError('');
+  }, [editForm]);
+
+  const loading = companiesLoading || currentCompanyLoading || createLoading || editLoading || deleteLoading || selectLoading;
 
   return (
     <div style={COMPANY_PAGE_STYLES.container}>
@@ -181,24 +203,14 @@ const CompaniesPage = () => {
           </Button>
         </div>
 
-        {error && !showCreateModal && !showEditModal && (
-          <Alert
-            message="错误"
-            description={error}
-            type="error"
-            showIcon
-            style={COMPANY_PAGE_STYLES.errorAlert}
-          />
-        )}
-
         <Spin spinning={loading}>
           <CompanyList
             companies={companies}
             currentCompany={currentCompany}
             loading={loading}
-            onSelectCompany={handleSelectCompany}
+            onSelectCompany={selectCompanyData}
             onEditCompany={openEditModal}
-            onDeleteCompany={handleDeleteCompany}
+            onDeleteCompany={deleteCompanyData}
           />
         </Spin>
       </Card>
@@ -212,9 +224,9 @@ const CompaniesPage = () => {
       >
         <CompanyForm
           form={createForm}
-          onFinish={handleCreateCompany}
-          loading={loading}
-          error={error}
+          onFinish={createCompanyData}
+          loading={createLoading}
+          error={createError}
           submitText="创建公司"
           cancelText="取消"
           onCancel={handleCreateModalCancel}
@@ -230,9 +242,9 @@ const CompaniesPage = () => {
       >
         <CompanyForm
           form={editForm}
-          onFinish={handleEditCompany}
-          loading={loading}
-          error={error}
+          onFinish={editCompanyData}
+          loading={editLoading}
+          error={editError}
           submitText="保存修改"
           cancelText="取消"
           onCancel={handleEditModalCancel}
