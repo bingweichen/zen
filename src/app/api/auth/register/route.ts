@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@/generated/prisma';
 import bcrypt from 'bcryptjs';
-import { createUser } from '@/services/user/createUser';
+import { createUser } from '@/server/user/service';
 
 const prisma = new PrismaClient();
 

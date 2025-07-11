@@ -6,16 +6,12 @@ import {
   Menu, 
   Button, 
   Dropdown, 
-  Avatar, 
+  // Avatar, 
   Space, 
   Typography,
-  Divider,
-  message
+  Divider
 } from 'antd';
 import { 
-  UserOutlined, 
-  LogoutOutlined, 
-  SettingOutlined,
   HomeOutlined,
   TeamOutlined,
   ShopOutlined,
@@ -24,11 +20,11 @@ import {
   DownOutlined,
   BuildOutlined
 } from '@ant-design/icons';
-import { useSession, signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useRequest } from 'ahooks';
-import { fetchCurrentCompany } from '@/modules/company/client/service';
-import { CompanyType } from '@/modules/company/types';
+import { fetchCurrentCompany } from '@/modules/company/service';
+import { CompanyType } from '@/server/company';
 import UserMenu from './UserMenu';
 
 const { Header: AntHeader } = Layout;
@@ -62,7 +58,7 @@ const Header: React.FC<HeaderProps> = ({ showNavigation = true }) => {
     if (session?.user) {
       fetchCurrentCompanyData();
     }
-  }, [session]);
+  }, [session, fetchCurrentCompanyData]);
 
   // 导航菜单项
   const navigationItems = [
@@ -104,38 +100,38 @@ const Header: React.FC<HeaderProps> = ({ showNavigation = true }) => {
   ];
 
   // 用户菜单项
-  const userMenuItems = [
-    {
-      key: 'profile',
-      icon: <UserOutlined />,
-      label: '个人资料',
-      onClick: () => router.push('/profile'),
-    },
-    {
-      key: 'companies',
-      icon: <BuildOutlined />,
-      label: '公司管理',
-      onClick: () => router.push('/companies'),
-    },
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: '系统设置',
-      onClick: () => router.push('/settings'),
-    },
-    {
-      type: 'divider' as const,
-    },
-    {
-      key: 'logout',
-      icon: <LogoutOutlined />,
-      label: '退出登录',
-      onClick: () => {
-        signOut({ callbackUrl: '/login' });
-        message.success('已退出登录');
-      },
-    },
-  ];
+  // const userMenuItems = [
+  //   {
+  //     key: 'profile',
+  //     icon: <UserOutlined />,
+  //     label: '个人资料',
+  //     onClick: () => router.push('/profile'),
+  //   },
+  //   {
+  //     key: 'companies',
+  //     icon: <BuildOutlined />,
+  //     label: '公司管理',
+  //     onClick: () => router.push('/companies'),
+  //   },
+  //   {
+  //     key: 'settings',
+  //     icon: <SettingOutlined />,
+  //     label: '系统设置',
+  //     onClick: () => router.push('/settings'),
+  //   },
+  //   {
+  //     type: 'divider' as const,
+  //   },
+  //   {
+  //     key: 'logout',
+  //     icon: <LogoutOutlined />,
+  //     label: '退出登录',
+  //     onClick: () => {
+  //       signOut({ callbackUrl: '/login' });
+  //       message.success('已退出登录');
+  //     },
+  //   },
+  // ];
 
   // 公司选择菜单项
   const companyMenuItems = [

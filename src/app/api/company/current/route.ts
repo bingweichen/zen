@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAuthenticatedUser } from '@/shared/lib/utils';
-import { getCurrentCompany, setCurrentCompany } from '@/modules/company/server';
+import { getCurrentCompany, setCurrentCompany } from '@/server/company';
 
 // 获取当前选择的公司
 export async function GET(req: NextRequest) {

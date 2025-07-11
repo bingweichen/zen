@@ -6,7 +6,7 @@ import {
   DeleteOutlined, 
   CheckCircleOutlined
 } from '@ant-design/icons';
-import { Company } from '../types';
+import { CompanyType as Company } from '@/server/company';
 import { CompanyInfo } from './CompanyInfo';
 import { COMPANY_PAGE_STYLES } from '../styles';
 

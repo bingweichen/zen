@@ -6,7 +6,7 @@ import {
   MailOutlined,
   GlobalOutlined
 } from '@ant-design/icons';
-import { Company } from '../types';
+import { CompanyType as Company } from '@/server/company';
 
 // 公司信息展示组件
 interface CompanyInfoProps {

@@ -1,4 +1,4 @@
-import { CompanyType as Company } from '../types';
+import { CompanyType as Company } from '@/server/company';
 
 // 基础API响应类型
 interface ApiResponse<T> {

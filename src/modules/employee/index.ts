@@ -1,2 +1,1 @@
-export * from './client/service';
-export * from './server/types'; 
+export * from './service'; 

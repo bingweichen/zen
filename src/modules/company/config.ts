@@ -1,12 +1,14 @@
 import { Input } from 'antd';
+import type { Rule } from 'antd/es/form';
+// import type { ReactElement } from 'react';
 
 // 表单字段配置
 export interface FormField {
   name: string;
   label: string;
-  rules?: any[];
-  component: any;
-  props: any;
+  rules?: Rule[];
+  component: React.ElementType;
+  props: Record<string, unknown>;
 }
 
 export const FORM_FIELDS: FormField[] = [

@@ -1,4 +1,4 @@
-import { EmployeeWithUserAndRole } from '../server/types';
+import { EmployeeWithUserAndRole } from '@/server/employee';
 
 // 基础API响应类型
 interface ApiResponse<T> {
@@ -18,7 +18,7 @@ export const fetchEmployees = async (): Promise<EmployeeWithUserAndRole[]> => {
 };
 
 // 邀请员工
-export const inviteEmployee = async (email: string): Promise<ApiResponse<any>> => {
+export const inviteEmployee = async (email: string): Promise<ApiResponse<unknown>> => {
   const res = await fetch('/api/company/employees', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -44,7 +44,7 @@ export const removeEmployee = async (employeeId: number): Promise<ApiResponse<vo
 };
 
 // 修改员工角色
-export const updateEmployeeRole = async (employeeId: number, roleId: number): Promise<ApiResponse<any>> => {
+export const updateEmployeeRole = async (employeeId: number, roleId: number): Promise<ApiResponse<unknown>> => {
   const res = await fetch('/api/company/employees', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },

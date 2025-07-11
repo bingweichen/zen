@@ -1,5 +1,6 @@
 import { PrismaClient } from '@/generated/prisma';
 import type { CompanyType, CreateCompanyData, UpdateCompanyData } from './type';
+import { createDefaultRolesForCompany, DEFAULT_ROLES } from '../role';
 
 const prisma = new PrismaClient();
 
@@ -62,14 +63,16 @@ export async function createCompany(userId: number, companyData: CreateCompanyDa
       },
     });
 
-    // 2. 创建 admin 角色
-    const adminRole = await prisma.role.create({
-      data: {
+    // 2. 创建默认角色
+    await createDefaultRolesForCompany(company.id);
+    // 获取 admin 角色
+    const adminRole = await prisma.role.findFirst({
+      where: {
         companyId: company.id,
-        name: 'admin',
-        description: '公司管理员',
+        name: DEFAULT_ROLES[0].name, // 'admin'
       },
     });
+    if (!adminRole) throw new Error('默认管理员角色创建失败');
 
     // 3. 创建员工记录（创建者为 admin）
     await prisma.employee.create({

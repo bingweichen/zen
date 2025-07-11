@@ -5,7 +5,7 @@ import {
   createCompany, 
   updateCompany, 
   deleteCompany 
-} from '@/modules/company/server';
+} from '@/server/company';
 
 export async function GET(req: NextRequest) {
   const userId = await getAuthenticatedUser() as number;

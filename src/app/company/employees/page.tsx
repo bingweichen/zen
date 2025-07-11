@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import { Table, Button, Space, Tag, message, Modal, Input, Popconfirm } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useRequest } from "ahooks";
-import { fetchEmployees, inviteEmployee, removeEmployee, type EmployeeWithUserAndRole } from "@/modules/employee";
+import { fetchEmployees, inviteEmployee, removeEmployee} from "@/modules/employee";
+import {type EmployeeWithUserAndRole} from "@/server/employee"
 
 const EmployeesPage: React.FC = () => {
   const [data, setData] = useState<EmployeeWithUserAndRole[]>([]);

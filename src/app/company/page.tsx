@@ -1,9 +1,9 @@
 'use client'
 import React, { useState } from "react";
-import { CompanyInfo } from "@/modules/company/client/components/CompanyInfo";
+import { CompanyInfo } from "@/modules/company/components/CompanyInfo";
 import { useRequest } from "ahooks";
-import { fetchCurrentCompany, fetchCompanies } from "@/modules/company/client/service";
-import { fetchEmployees } from "@/modules/employee/client/service";
+import { fetchCurrentCompany, fetchCompanies } from "@/modules/company/service";
+import { fetchEmployees } from "@/modules/employee/service";
 import Link from "next/link";
 
 const Dashboard = () => {

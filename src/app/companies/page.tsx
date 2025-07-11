@@ -17,11 +17,14 @@ import {
 } from '@ant-design/icons';
 import { useRequest } from 'ahooks';
 import { 
-  CompanyType as Company, 
   CompanyForm, 
   CompanyList, 
   COMPANY_PAGE_STYLES 
-} from '@/modules/company/client';
+} from '@/modules/company';
+import { 
+  CompanyType as Company 
+} from '@/server/company'
+
 import {
   fetchCompanies,
   fetchCurrentCompany,
@@ -29,7 +32,7 @@ import {
   updateCompany,
   deleteCompany,
   selectCompany
-} from '@/modules/company/client/service';
+} from '@/modules/company/service';
 
 const { Title } = Typography;
 
