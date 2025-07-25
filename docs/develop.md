@@ -47,6 +47,8 @@
     - [ ] company/home 首页
     - [ ] company/employees
     - [x] header
+- [ ] 配置 vercel
+  
 ## 页面
 - 登录
 - 注册
